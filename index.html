@@ -14,16 +14,21 @@
         .scan-line { width: 100%; height: 2px; background: #00e5ff; position: absolute; top: 0; left: 0; box-shadow: 0 0 15px 2px #00e5ff; animation: scan 2s infinite linear; z-index: 10; }
         @keyframes scan { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
         
-        /* 🌟 เอฟเฟกต์มุมกรอบ Sci-Fi (แสงฟุ้ง + กระพริบ) */
+        /* 🌟 เอฟเฟกต์มุมกรอบ Sci-Fi (แสงฟุ้ง + กระพริบถี่ๆ) */
         .neon-corner {
             border-color: #00e5ff;
             filter: drop-shadow(0 0 5px #00e5ff);
-            animation: pulse-glow 1.5s infinite alternate;
+            /* 🚀 ปรับความเร็วการกระพริบให้เร็วขึ้นมาก จาก 1.5s เป็น 0.6s */
+            animation: pulse-glow 0.6s infinite alternate; 
         }
         @keyframes pulse-glow {
             0% { opacity: 1; filter: drop-shadow(0 0 8px #00e5ff) drop-shadow(0 0 15px #00e5ff); }
             100% { opacity: 0.3; filter: drop-shadow(0 0 2px #00e5ff); }
         }
+
+        /* 🚀 ท่าไม้ตายกำจัดขอบขาว: ซ่อนขอบมุมสีขาวดั้งเดิมของระบบทิ้งไป! */
+        #reader svg { display: none !important; }
+        #reader { border: none !important; outline: none !important; }
     </style>
 </head>
 <body class="flex flex-col h-screen overflow-hidden text-white">
@@ -39,10 +44,15 @@
         
         <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
             <div class="w-64 h-64 relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 neon-corner rounded-tl-2xl"></div>
-                <div class="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 neon-corner rounded-tr-2xl"></div>
-                <div class="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 neon-corner rounded-bl-2xl"></div>
-                <div class="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 neon-corner rounded-br-2xl"></div>
+                
+                <div class="absolute top-0 left-0 w-12 h-12 border-t-[6px] border-l-[6px] neon-corner rounded-tl-2xl"></div>
+                
+                <div class="absolute top-0 right-0 w-12 h-12 border-t-[6px] border-r-[6px] neon-corner rounded-tr-2xl"></div>
+                
+                <div class="absolute bottom-0 left-0 w-12 h-12 border-b-[6px] border-l-[6px] neon-corner rounded-bl-2xl"></div>
+                
+                <div class="absolute bottom-0 right-0 w-12 h-12 border-b-[6px] border-r-[6px] neon-corner rounded-br-2xl"></div>
+                
                 <div class="scan-line"></div>
             </div>
         </div>
@@ -54,10 +64,8 @@
     </div>
 
     <script>
-        // เสียง Beep อัตโนมัติ
         const beep = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
         
-        // อ่านค่า URL Parameters
         const urlParams = new URLSearchParams(window.location.search);
         const targetPage = urlParams.get('page') || 'maintenance';
         const callbackUrl = urlParams.get('callback');
@@ -70,22 +78,20 @@
                 { facingMode: "environment" },
                 { fps: 15, qrbox: { width: 250, height: 250 } },
                 (decodedText) => {
-                    // 1. เล่นเสียง + สั่น
                     beep.pause(); beep.currentTime = 0; beep.play().catch(e=>e);
                     if (navigator.vibrate) navigator.vibrate(200);
                     
                     document.getElementById('debug-info').innerText = "สแกนสำเร็จ: " + decodedText;
                     html5QrCode.stop();
 
-                    // 2. ส่งรหัสกลับไปที่ Google Sites / GAS
                     let scannedId = decodedText;
                     if(decodedText.includes('id=')) {
                         try { scannedId = new URL(decodedText).searchParams.get('id'); } catch(e){}
                     }
 
                     if (callbackUrl) {
-                        // เด้งกลับไปที่แอปพร้อมรหัส (Magic Scan)
-                        window.location.href = `${callbackUrl}?page=${targetPage}&id=${scannedId}`;
+                        // เพิ่ม encodeURIComponent ป้องกันลิงก์พังเวลาส่งกลับ
+                        window.location.href = `${callbackUrl}?page=${targetPage}&id=${encodeURIComponent(scannedId)}`;
                     } else {
                         alert("รหัส: " + scannedId + "\n(ไม่พบลิงก์ส่งกลับ)");
                     }
@@ -101,7 +107,6 @@
             if (callbackUrl) { window.location.href = callbackUrl; } else { window.history.back(); }
         }
 
-        // เริ่มกล้องทันทีที่โหลดเสร็จ
         window.onload = startScanner;
     </script>
 </body>
