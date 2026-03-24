@@ -10,53 +10,55 @@
     <style>
         body { font-family: 'Noto Sans Thai', sans-serif; background-color: #051430; margin: 0; overflow: hidden; }
         
-        /* 🚀 ท่าไม้ตาย: สั่งตายขอบขาว 100% */
-        #reader__scan_region svg, #reader__viewfinder_border { display: none !important; }
-        #reader { border: none !important; }
+        /* 🚀 Nuclear Option: สั่งตายกรอบขาวดั้งเดิมถาวร ทุกชั้น! */
+        #reader__scan_region svg, 
+        #reader__viewfinder_border,
+        #reader__scan_region > div { display: none !important; border: none !important; outline: none !important; }
+        #reader { border: none !important; outline: none !important; }
 
-        /* 🌟 กรอบสแกน "Focus Lock" เล็กลงและดูพรีเมียม (220x220) */
+        /* 🌟 สร้างกรอบสแกนสมูท (200x200) ตามสั่ง */
         .scan-frame {
-            width: 220px; height: 220px;
-            border: 1px solid rgba(0, 229, 255, 0.3);
+            width: 200px; height: 200px;
+            border: 1px solid rgba(0, 229, 255, 0.2);
             position: relative;
-            /* 🚀 ปรับขนาดอัตโนมัติ (Breathing Effect) */
-            animation: frame-breath 3s infinite ease-in-out;
+            /* Breathing Animation */
+            animation: breath 2.5s infinite ease-in-out;
         }
-        @keyframes frame-breath {
-            0%, 100% { transform: scale(1); border-color: rgba(0, 229, 255, 0.3); }
-            50% { transform: scale(1.05); border-color: rgba(0, 229, 255, 0.8); }
+        @keyframes breath {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.03); opacity: 1; }
         }
 
-        .corner { position: absolute; width: 25px; height: 25px; border-color: #00e5ff; filter: drop-shadow(0 0 8px #00e5ff); }
-        .t-l { top: -2px; left: -2px; border-top: 5px solid; border-left: 5px solid; border-radius: 8px 0 0 0; }
-        .t-r { top: -2px; right: -2px; border-top: 5px solid; border-right: 5px solid; border-radius: 0 8px 0 0; }
-        .b-l { bottom: -2px; left: -2px; border-bottom: 5px solid; border-left: 5px solid; border-radius: 0 0 0 8px; }
-        .b-r { bottom: -2px; right: -2px; border-bottom: 5px solid; border-right: 5px solid; border-radius: 0 0 8px 0; }
+        .corner { position: absolute; width: 20px; height: 20px; border-color: #00e5ff; filter: drop-shadow(0 0 5px #00e5ff); }
+        .t-l { top: -1px; left: -1px; border-top: 4px solid; border-left: 4px solid; border-radius: 4px 0 0 0; }
+        .t-r { top: -1px; right: -1px; border-top: 4px solid; border-right: 4px solid; border-radius: 0 4px 0 0; }
+        .b-l { bottom: -1px; left: -1px; border-bottom: 4px solid; border-left: 4px solid; border-radius: 0 0 0 4px; }
+        .b-r { bottom: -1px; right: -1px; border-bottom: 4px solid; border-right: 4px solid; border-radius: 0 0 4px 0; }
 
-        .laser { width: 100%; height: 3px; background: linear-gradient(to bottom, transparent, #00e5ff, transparent); position: absolute; animation: laser-move 2.5s infinite linear; box-shadow: 0 0 15px #00e5ff; }
-        @keyframes laser-move { 0% { top: 0; } 100% { top: 100%; } }
+        .laser { width: 100%; height: 2px; background: #00e5ff; position: absolute; animation: laser 2s infinite linear; box-shadow: 0 0 10px #00e5ff; }
+        @keyframes laser { 0% { top: 0; } 100% { top: 100%; } }
 
-        /* ✨ หน้าจอ Success Overlay */
-        #success-screen {
-            position: absolute; inset: 0; background: rgba(255,255,255,0.4); backdrop-filter: blur(4px);
+        /* ✨ หน้าจอ Freeze & Success Overlay (สีขาวโปร่งแสง) */
+        #freeze-overlay {
+            position: absolute; inset: 0; background: rgba(255,255,255,0.7); backdrop-filter: blur(5px);
             display: none; align-items: center; justify-content: center; z-index: 100;
         }
-        .check-anim { animation: check-scale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes check-scale { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        .success-card { background: white; padding: 2rem; border-radius: 2rem; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transform: scale(0.5); animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes pop { 100% { transform: scale(1); } }
     </style>
 </head>
 <body class="flex flex-col h-screen text-white">
 
     <div class="bg-[#051430] p-4 text-center z-20 flex justify-between items-center border-b border-[#00e5ff]/20">
         <div class="w-8"></div>
-        <h1 class="text-xl font-bold tracking-widest text-[#00e5ff]">T | H | A <span class="text-white text-[10px] block font-normal tracking-normal">Premium Scanner</span></h1>
+        <h1 class="text-lg font-bold tracking-widest text-[#00e5ff]">T | H | A <span class="text-[10px] block font-normal opacity-70">Premium Scanner</span></h1>
         <button onclick="goBack()" class="w-8 h-8 flex items-center justify-center bg-white/10 rounded-full">✕</button>
     </div>
 
     <div class="flex-grow relative flex items-center justify-center bg-black">
         <div id="reader" class="w-full h-full"></div>
         
-        <div id="scanner-ui" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div id="ui-layer" class="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div class="scan-frame">
                 <div class="corner t-l"></div><div class="corner t-r"></div>
                 <div class="corner b-l"></div><div class="corner b-r"></div>
@@ -64,24 +66,23 @@
             </div>
         </div>
 
-        <div id="success-screen">
-            <div class="text-center">
-                <div class="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-2xl check-anim border-4 border-white">
-                    <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+        <div id="freeze-overlay">
+            <div class="success-card">
+                <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
                 </div>
-                <h2 class="text-[#051430] text-2xl font-bold drop-shadow-sm">สแกนสำเร็จ</h2>
-                <p id="scanned-id-text" class="text-[#051430] font-bold mt-2"></p>
+                <h2 class="text-gray-800 text-xl font-bold">สแกนสำเร็จ</h2>
+                <p id="res-id" class="text-blue-600 font-bold mt-1"></p>
             </div>
         </div>
     </div>
 
-    <div class="bg-[#051430] p-6 text-center z-20 rounded-t-[40px] border-t border-[#00e5ff]/30">
-        <label class="w-full bg-white/5 border-2 border-[#00e5ff]/50 border-dashed rounded-2xl p-4 text-[#00e5ff] font-bold cursor-pointer flex items-center justify-center gap-3 active:scale-95 transition-all">
+    <div class="bg-[#051430] p-6 text-center z-20 rounded-t-[40px] border-t border-[#00e5ff]/20">
+        <label class="w-full bg-white/5 border-2 border-[#00e5ff]/30 border-dashed rounded-2xl p-4 text-[#00e5ff] font-bold cursor-pointer flex items-center justify-center gap-3 active:scale-95 transition-all">
           <span class="text-2xl">🖼️</span>
-          <span>ดึงรูปภาพ QR จากอัลบั้ม</span>
+          <span>ดึงรูปภาพจากอัลบั้ม</span>
           <input type="file" id="qr-upload" class="hidden" accept="image/*" onchange="scanQRFromFile(event)">
         </label>
-        <p class="text-[10px] text-gray-500 mt-4 tracking-widest uppercase">THA Asset Management System v2.0</p>
     </div>
 
     <script>
@@ -93,56 +94,48 @@
             html5QrCode = new Html5Qrcode("reader");
             html5QrCode.start(
                 { facingMode: "environment" },
-                { fps: 20, qrbox: { width: 220, height: 220 } },
-                (decodedText) => { handleData(decodedText); }
+                { fps: 20, qrbox: { width: 200, height: 200 } },
+                (decodedText) => { handleScan(decodedText); }
             ).catch(err => console.error(err));
         }
 
-        // 🌟 แก้ปัญหาประเด็นที่ 1: ดักจับและล้างลิงก์ให้เหลือแค่ ID
-        function handleData(decodedText) {
-            // 1. หยุดกล้องทันที (Freeze)
-            if (html5QrCode) html5QrCode.pause(); 
-            
-            // 2. ล้างข้อมูล: ถ้าเป็นลิงก์ยาว ให้ดึงแค่ค่า ID ออกมา
-            let cleanId = decodedText;
-            if(decodedText.includes('id=')) {
+        function handleScan(text) {
+            // 🛑 1. หยุดกล้องทันที (Freeze)
+            if(html5QrCode) html5QrCode.pause();
+
+            // 🛑 2. กรองรหัส (แก้ประเด็นที่ 1): ต่อให้มีลิงก์ยาว เราจะเอาแค่ ID
+            let cleanId = text;
+            if (text.includes('id=')) {
                 try {
-                    const url = new URL(decodedText);
-                    cleanId = url.searchParams.get('id') || decodedText;
-                } catch(e) {
-                    // ถ้าไม่ใช่ URL มาตรฐาน ให้ใช้ Regex ช่วย
-                    const match = decodedText.match(/id=([^&]+)/);
-                    if(match) cleanId = match[1];
-                }
+                    const match = text.match(/[?&]id=([^&]+)/);
+                    cleanId = match ? decodeURIComponent(match[1]) : text;
+                } catch(e) { cleanId = text; }
             }
 
-            // 3. แสดงหน้าจอ Success (2 วินาที)
+            // 🛑 3. แสดงหน้าจอ Success และค้างไว้ 2 วินาที
             beep.play().catch(e=>e);
             if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
             
-            document.getElementById('scanned-id-text').innerText = "รหัส: " + cleanId;
-            document.getElementById('success-screen').style.display = 'flex';
-            document.getElementById('scanner-ui').style.opacity = '0';
+            document.getElementById('res-id').innerText = cleanId;
+            document.getElementById('freeze-overlay').style.display = 'flex';
+            document.getElementById('ui-layer').style.opacity = '0';
 
-            // 4. ส่งข้อมูลกลับไปที่แอปหลัก
+            // 🛑 4. ส่งรหัสสั้นกลับไป และปิดแท็บ
             setTimeout(() => {
                 if (window.opener) {
                     window.opener.postMessage({ type: 'QR_SCANNED', id: cleanId, key: SECRET_KEY }, "*");
                     window.close();
                 }
-            }, 2000); // 🚀 ฟริซรูปค้างไว้ 2 วินาทีตามสั่ง
+            }, 2000); 
         }
 
         async function scanQRFromFile(event) {
             if (event.target.files.length === 0) return;
-            const file = event.target.files[0];
-            const readerInstance = new Html5Qrcode("reader");
+            const reader = new Html5Qrcode("reader");
             try {
-                const result = await readerInstance.scanFile(file, true);
-                handleData(result);
-            } catch (err) {
-                alert("ไม่พบ QR Code ในรูปภาพนี้ครับ");
-            }
+                const result = await reader.scanFile(event.target.files[0], true);
+                handleScan(result);
+            } catch (err) { alert("ไม่พบ QR Code ครับ"); }
         }
 
         function goBack() { if (window.opener) window.close(); else history.back(); }
