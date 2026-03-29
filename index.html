@@ -18,11 +18,12 @@
         #reader__scan_region { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; }
         #reader video { object-fit: cover !important; width: 100vw !important; height: 100vh !important; }
 
-        /* 🌟 Holographic Masking Overlay */
+        /* 🌟 Holographic Masking Overlay (อัปเดต: ให้เรียงตัวแนวตั้ง) */
         .hologram-mask {
             position: absolute; inset: 0; pointer-events: none; z-index: 10;
-            display: flex; align-items: center; justify-content: center;
-            padding-bottom: 2rem; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 1.5rem; /* ระยะห่างระหว่างกรอบกับป้ายข้อความ */
+            padding-bottom: 4rem; /* ดันกรอบและข้อความขึ้นไปให้อยู่ศูนย์กลางสายตา */
         }
 
         /* 🌟 เจาะรูใสกระจกแจ๋ว */
@@ -103,15 +104,15 @@
             </div>
             <div class="laser-wrapper"><div class="laser"></div></div>
         </div>
-    </div>
-
-    <div class="absolute bottom-0 w-full bg-gradient-to-t from-[#051430] via-[#051430]/90 to-transparent p-6 pb-12 z-20 flex justify-center pointer-events-none">
-        <p class="text-white/80 text-sm font-medium tracking-wide drop-shadow-md bg-black/40 px-5 py-2 rounded-full border border-white/10">
+        
+        <p class="text-white/90 text-sm font-medium tracking-wide drop-shadow-md bg-[#051430]/60 backdrop-blur-md px-6 py-2.5 rounded-full border border-white/20 pointer-events-none mt-2">
             จัดคิวอาร์โค้ดให้อยู่ในกรอบเพื่อสแกน
         </p>
     </div>
 
-    <div class="absolute right-6 bottom-32 z-30 flex flex-col gap-5 pointer-events-auto">
+    <div class="absolute bottom-0 w-full h-32 bg-gradient-to-t from-[#051430]/90 to-transparent z-10 pointer-events-none"></div>
+
+    <div class="absolute right-6 bottom-24 z-30 flex flex-col gap-5 pointer-events-auto">
         
         <label class="w-14 h-14 bg-white/10 hover:bg-[#00e5ff]/20 text-white hover:text-[#00e5ff] rounded-full shadow-[0_0_15px_rgba(0,229,255,0.15)] backdrop-blur-md transition-all flex items-center justify-center group active:scale-95 border border-white/20 cursor-pointer" title="สแกนจากรูปภาพ">
             <svg class="w-6 h-6 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
