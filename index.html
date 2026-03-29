@@ -10,90 +10,159 @@
     <style>
         body { font-family: 'Noto Sans Thai', sans-serif; background-color: #051430; margin: 0; overflow: hidden; }
         
-        /* 🚀 Nuclear Option: สั่งตายกรอบขาวดั้งเดิมถาวร ทุกชั้น! */
+        /* 🚀 Nuclear Option: ปิดกรอบดั้งเดิมของไลบรารี */
         #reader__scan_region svg, 
         #reader__viewfinder_border,
-        #reader__scan_region > div:nth-child(2) { display: none !important; border: none !important; outline: none !important; }
+        #reader__scan_region > div:nth-child(2) { display: none !important; }
         #reader { border: none !important; outline: none !important; }
+        #reader__scan_region { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; }
+        #reader video { object-fit: cover !important; width: 100vw !important; height: 100vh !important; }
 
-        /* 🌟 สร้างกรอบสแกนสมูท (200x200) ตามสั่ง พร้อม Breathing Effect */
-        .scan-frame {
-            width: 200px; height: 200px;
-            border: 1px solid rgba(0, 229, 255, 0.2);
+        /* 🌟 Holographic Masking Overlay (หน้ากากบังสายตา) */
+        .hologram-mask {
+            position: absolute;
+            inset: 0;
+            pointer-events: none; /* ให้กดทะลุได้ */
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 🌟 เจาะรูใส + สร้างเงามืดรอบๆ */
+        .scan-window {
+            width: 250px; /* ขนาดรูเจาะกว้างขึ้นนิดนึงให้สแกนง่าย */
+            height: 250px;
             position: relative;
-            animation: breath 2.5s infinite ease-in-out;
+            /* ทริค: ใช้ box-shadow ใหญ่ๆ สร้างเลเยอร์มืดโปร่งแสงรอบรูเจาะ */
+            box-shadow: 0 0 0 9999px rgba(5, 20, 48, 0.7); 
+            border-radius: 16px; /* ขอบมนนิดๆ ให้ดูล้ำ */
+            /* Wow Factor: เบลอวิดีโอรอบนอก (ต้องใช้ครอบคลุมพื้นที่) */
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
-        @keyframes breath {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.03); opacity: 1; }
+
+        /* 🌟 Smart Scanner Frame (กรอบ 4 มุมสไตล์โฮโลแกรม) */
+        .scan-frame-ui {
+            position: absolute;
+            inset: -10px; /* ขยายกรอบออกมานอกรูเจาะนิดนึง */
+            border-radius: 20px;
+            animation: simulated-track 3s infinite cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .corner { position: absolute; width: 20px; height: 20px; border-color: #00e5ff; filter: drop-shadow(0 0 5px #00e5ff); }
-        .t-l { top: -1px; left: -1px; border-top: 4px solid; border-left: 4px solid; border-radius: 8px 0 0 0; }
-        .t-r { top: -1px; right: -1px; border-top: 4px solid; border-right: 4px solid; border-radius: 0 8px 0 0; }
-        .b-l { bottom: -1px; left: -1px; border-bottom: 4px solid; border-left: 4px solid; border-radius: 0 0 0 8px; }
-        .b-r { bottom: -1px; right: -1px; border-bottom: 4px solid; border-right: 4px solid; border-radius: 0 0 8px 0; }
+        @keyframes simulated-track {
+            0%, 100% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 2px #00e5ff); }
+            50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 8px #00e5ff); } /* จังหวะหายใจ + เรืองแสง */
+        }
 
-        .laser { width: 100%; height: 2px; background: #00e5ff; position: absolute; animation: laser 2s infinite linear; box-shadow: 0 0 10px #00e5ff; }
-        @keyframes laser { 0% { top: 0; } 100% { top: 100%; } }
+        .corner { position: absolute; width: 30px; height: 30px; border-color: #00e5ff; }
+        .t-l { top: 0; left: 0; border-top: 4px solid; border-left: 4px solid; border-radius: 12px 0 0 0; }
+        .t-r { top: 0; right: 0; border-top: 4px solid; border-right: 4px solid; border-radius: 0 12px 0 0; }
+        .b-l { bottom: 0; left: 0; border-bottom: 4px solid; border-left: 4px solid; border-radius: 0 0 0 12px; }
+        .b-r { bottom: 0; right: 0; border-bottom: 4px solid; border-right: 4px solid; border-radius: 0 0 12px 0; }
 
-        /* ✨ หน้าจอ Freeze & Success Overlay (สีขาวโปร่งแสง) */
+        /* 🌟 Holographic Scan Line (เลเซอร์สแกน) */
+        .laser-wrapper {
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            overflow: hidden; /* ไม่ให้เลเซอร์ล้นกรอบ */
+        }
+        .laser { 
+            width: 100%; height: 3px; 
+            background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+            position: absolute; 
+            box-shadow: 0 0 15px 2px rgba(0, 229, 255, 0.6); 
+            animation: laser-scan 2.5s infinite linear; 
+        }
+        @keyframes laser-scan { 
+            0% { top: -10%; opacity: 0; } 
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 110%; opacity: 0; } 
+        }
+
+        /* ✨ หน้าจอ Freeze & Success Overlay (Glassmorphism) */
         #freeze-overlay {
-            position: absolute; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(5px);
+            position: absolute; inset: 0; background: rgba(5, 20, 48, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             display: none; align-items: center; justify-content: center; z-index: 100;
         }
-        .success-card { background: white; padding: 2.5rem; border-radius: 2rem; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transform: scale(0.5); animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; border: 2px solid rgba(0,229,255,0.2); }
-        @keyframes pop { 100% { transform: scale(1); } }
+        .success-card { 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 3rem; border-radius: 2rem; text-align: center; 
+            box-shadow: 0 20px 40px rgba(0, 229, 255, 0.2); 
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            transform: scale(0.5); opacity: 0;
+            animation: holo-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+        }
+        @keyframes holo-pop { 100% { transform: scale(1); opacity: 1; } }
     </style>
 </head>
-<body class="flex flex-col h-screen text-white">
+<body class="flex flex-col h-screen text-white relative">
 
-    <div class="bg-[#051430] p-4 text-center z-20 flex justify-between items-center border-b border-[#00e5ff]/20">
-        <div class="w-8"></div>
-        <h1 class="text-lg font-bold tracking-widest text-[#00e5ff]">T | H | A <span class="text-[10px] block font-normal text-white opacity-70">Premium Scanner</span></h1>
-        <button onclick="goBack()" class="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors rounded-full">✕</button>
+    <div class="absolute top-0 w-full bg-gradient-to-b from-[#051430] to-transparent p-4 pt-6 z-20 flex justify-between items-center pointer-events-none">
+        <div class="w-10"></div>
+        <div class="text-center pointer-events-auto">
+            <h1 class="text-xl font-bold tracking-widest text-[#00e5ff] drop-shadow-md">T | H | A</h1>
+            <span class="text-xs font-medium text-white/80 tracking-widest uppercase block mt-1">Smart Scanner</span>
+        </div>
+        <button onclick="goBack()" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 transition-colors rounded-full backdrop-blur-md border border-white/20 shadow-lg pointer-events-auto active:scale-90">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
     </div>
 
-    <div class="flex-grow relative flex items-center justify-center bg-black">
-        <div id="reader" class="w-full h-full object-cover"></div>
-        
-        <div id="ui-layer" class="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300">
-            <div class="scan-frame">
+    <div id="reader-container" class="absolute inset-0 bg-black z-0 overflow-hidden">
+        <div id="reader" class="w-full h-full"></div>
+    </div>
+    
+    <div id="ui-layer" class="hologram-mask transition-opacity duration-300">
+        <div class="scan-window">
+            <div class="scan-frame-ui">
                 <div class="corner t-l"></div><div class="corner t-r"></div>
                 <div class="corner b-l"></div><div class="corner b-r"></div>
-                <div class="laser"></div>
-
-                <div class="absolute right-2 bottom-2 pointer-events-auto">
-                    <label class="w-10 h-10 bg-gradient-to-br from-white to-gray-100 text-[#051430] rounded-xl shadow-[4px_4px_10px_rgba(0,0,0,0.3)] hover:scale-105 transition-all flex items-center justify-center group active:scale-95 border border-white cursor-pointer" title="ดึงรูปภาพ QR จากอัลบั้ม">
-                        <div class="relative w-6 h-6 flex items-center justify-center">
-                        <svg class="w-full h-full text-[#051430]/70 group-hover:text-[#00e5ff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        </div>
-                        <input type="file" id="qr-upload" class="hidden" accept="image/*" onchange="scanQRFromFile(event)">
-                    </label>
-                </div>
             </div>
-        </div>
-
-        <div id="freeze-overlay">
-            <div class="success-card">
-                <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
-                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
-                </div>
-                <h2 class="text-gray-800 text-xl font-bold">สแกนสำเร็จ</h2>
-                <p id="res-id" class="text-blue-600 font-bold mt-2 text-lg"></p>
-                <p class="text-gray-400 text-xs mt-3 animate-pulse">กำลังกลับเข้าหน้าแอป...</p>
+            <div class="laser-wrapper">
+                <div class="laser"></div>
             </div>
         </div>
     </div>
 
-    <div class="bg-[#051430] p-6 text-center z-20 border-t border-[#00e5ff]/20">
-        <p class="text-gray-400 text-xs tracking-widest uppercase">T | H | A Asset Management v2.0</p>
+    <div class="absolute bottom-0 w-full bg-gradient-to-t from-[#051430] via-[#051430]/80 to-transparent p-8 pb-10 z-20 flex flex-col items-center pointer-events-none">
+        <p class="text-white/70 text-sm mb-6 font-medium tracking-wide drop-shadow-md">จัดคิวอาร์โค้ดให้อยู่ในกรอบเพื่อสแกน</p>
+        
+        <div class="flex items-center gap-6 pointer-events-auto">
+            <label class="w-14 h-14 bg-white/10 hover:bg-[#00e5ff]/20 text-white hover:text-[#00e5ff] rounded-2xl shadow-lg backdrop-blur-md transition-all flex items-center justify-center group active:scale-95 border border-white/20 cursor-pointer" title="สแกนจากรูปภาพ">
+                <svg class="w-6 h-6 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <input type="file" id="qr-upload" class="hidden" accept="image/*" onchange="scanQRFromFile(event)">
+            </label>
+            <div class="w-14 h-14"></div> 
+        </div>
+    </div>
+
+    <div id="freeze-overlay">
+        <div class="success-card">
+            <div class="relative w-20 h-20 mx-auto mb-6">
+                <div class="absolute inset-0 border-4 border-[#00e5ff]/30 rounded-full animate-ping"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-[#00e5ff] to-blue-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(0,229,255,0.6)]">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+            </div>
+            <h2 class="text-[#00e5ff] text-2xl font-bold tracking-wide">สแกนสำเร็จ</h2>
+            <p id="res-id" class="text-white font-bold mt-3 text-xl bg-white/10 py-2 px-6 rounded-lg inline-block border border-white/20 tracking-wider"></p>
+            <p class="text-[#00e5ff]/70 text-sm mt-5 font-medium flex items-center justify-center gap-2">
+                <span class="w-2 h-2 bg-[#00e5ff] rounded-full animate-pulse"></span>
+                กำลังประมวลผลข้อมูล...
+            </p>
+        </div>
     </div>
 
     <script>
-        const beep = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+        // เสียงบี๊บแนว Sci-fi (สั้นๆ กระชับ)
+        const beep = new Audio('https://actions.google.com/sounds/v1/ui/beep_short_active.ogg');
+        beep.volume = 0.5;
         const SECRET_KEY = "N1u3@THA-SAM_K07e03y2026";
         let html5QrCode;
 
@@ -101,9 +170,16 @@
             html5QrCode = new Html5Qrcode("reader");
             html5QrCode.start(
                 { facingMode: "environment" },
-                { fps: 20, qrbox: { width: 200, height: 200 } },
+                // ไม่ต้องใช้ qrbox ของไลบรารีแล้ว เพราะเราทำ Masking เองเต็มจอ
+                { fps: 20 },
                 (decodedText) => { handleScan(decodedText); }
-            ).catch(err => console.error(err));
+            ).then(() => {
+                // สั่น 1 ทีตอนกล้องเปิดพร้อมใช้งาน
+                if (navigator.vibrate) navigator.vibrate(50);
+            }).catch(err => {
+                console.error("Camera Init Error:", err);
+                alert("ไม่สามารถเปิดกล้องได้ กรุณาตรวจสอบสิทธิ์การเข้าถึง");
+            });
         }
 
         function handleScan(text) {
@@ -112,7 +188,7 @@
                 html5QrCode.stop().catch(err => console.error(err));
             }
 
-            // 🛑 2. Data Stripper: กรองรหัส ตัดลิงก์ยาวทิ้ง
+            // 🛑 2. Data Stripper: กรองรหัส
             let cleanId = text;
             if (text.includes('id=')) {
                 try {
@@ -121,21 +197,24 @@
                 } catch(e) { cleanId = text; }
             }
 
-            // 🛑 3. แสดงหน้าจอ Success และค้างไว้ 3 วินาที
+            // 🛑 3. แสดงหน้าจอ Success แบบ Hologram
             beep.play().catch(e=>e);
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100]); // สั่น 3 จังหวะ
             
             document.getElementById('res-id').innerText = cleanId;
             document.getElementById('freeze-overlay').style.display = 'flex';
-            document.getElementById('ui-layer').style.opacity = '0';
+            document.getElementById('ui-layer').style.opacity = '0'; // ซ่อนกรอบสแกน
 
-            // 🛑 4. ส่งรหัสสั้นกลับไป และปิดแท็บ
+            // 🛑 4. ส่งรหัสและปิดแท็บ
             setTimeout(() => {
                 if (window.opener) {
                     window.opener.postMessage({ type: 'QR_SCANNED', id: cleanId, key: SECRET_KEY }, "*");
                     window.close();
+                } else {
+                    // ถ้าเปิดแบบไม่มี opener (เช่น ทดสอบตรงๆ)
+                    alert("สแกนได้รหัส: " + cleanId + "\n(เปิดผ่าน LIFF หรือ PWA ให้ปิดหน้านี้เอง)");
                 }
-            }, 3000); 
+            }, 2500); // เร็วขึ้นนิดนึงให้รู้สึก Snappy
         }
 
         async function scanQRFromFile(event) {
@@ -143,12 +222,20 @@
             const file = event.target.files[0];
             const readerInstance = new Html5Qrcode("reader");
             try {
+                // สั่นเบาๆ ตอนเริ่มโหลดรูป
+                if (navigator.vibrate) navigator.vibrate(30); 
                 const result = await readerInstance.scanFile(file, true);
                 handleScan(result);
-            } catch (err) { alert("ไม่พบ QR Code ในรูปภาพครับ กรุณาลองใหม่"); }
+            } catch (err) { 
+                alert("ไม่พบ QR Code ในรูปภาพ กรุณาลองรูปอื่นครับ"); 
+            }
         }
 
-        function goBack() { if (window.opener) window.close(); else history.back(); }
+        function goBack() { 
+            if (window.opener) window.close(); 
+            else history.back(); 
+        }
+        
         window.onload = startScanner;
     </script>
 </body>
